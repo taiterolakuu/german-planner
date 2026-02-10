@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Кастомные стили для Glassmorphism 2.0 */
+.glass-header {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-header {
+  background-color: rgba(17, 24, 39, 0.7);
+  border-bottom: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.glass-nav {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-nav {
+  background-color: rgba(17, 24, 39, 0.8);
+  border-top: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.glass-card {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-card {
+  background-color: rgba(31, 41, 55, 0.4);
+  border: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+.glass-card-2 {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+}
+
+.dark .glass-card-2 {
+  background-color: rgba(31, 41, 55, 0.3);
+  border: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.glass-input {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+}
+
+.dark .glass-input {
+  background-color: rgba(55, 65, 81, 0.5);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Анимации */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Кастомные цвета */
+.bg-sf-blue {
+  background-color: #007AFF;
+}
+
+.text-sf-blue {
+  color: #007AFF;
+}
+
+.border-sf-blue {
+  border-color: #007AFF;
+}
+
+.from-sf-blue {
+  --tw-gradient-from: #007AFF;
+}
+
+.to-indigo-400 {
+  --tw-gradient-to: #818cf8;
+}
+
+/* Базовые стили React */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
