@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Кастомные стили для Glassmorphism 2.0 */
+/* Кастомные стили для Glassmorphism 3.0 */
 .glass-header {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -65,6 +65,58 @@
 .dark .glass-input {
   background-color: rgba(55, 65, 81, 0.5);
   border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Неоновое свечение для важных элементов */
+.glass-glow {
+  box-shadow:
+    0 0 20px rgba(0, 122, 255, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
+/* Частицы XP для прогресс-бара */
+.xp-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.xp-particle {
+  position: absolute;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffffff 0%, #007aff 60%, transparent 100%);
+  opacity: 0;
+  animation: xp-burst 0.6s ease-out forwards;
+}
+
+.xp-particle:nth-child(1) {
+  left: 20%;
+}
+
+.xp-particle:nth-child(2) {
+  left: 50%;
+  animation-delay: 0.05s;
+}
+
+.xp-particle:nth-child(3) {
+  left: 80%;
+  animation-delay: 0.1s;
+}
+
+@keyframes xp-burst {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-14px) scale(1);
+    opacity: 0;
+  }
 }
 
 /* Анимации */

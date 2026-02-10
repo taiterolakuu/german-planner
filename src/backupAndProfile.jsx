@@ -177,76 +177,169 @@ export const ProfileTab = memo(({
   totalWords,
   darkMode,
   clearAllData,
-  handleDarkModeToggle
-}) => (
-  <div className="space-y-6">
-    <BackupManager 
-      backups={backups}
-      onRestore={restoreFromBackup}
-      onCreateBackup={createBackup}
-      onDeleteBackup={deleteBackup}
-    />
-    
-    <div className="glass-card p-6">
-      <h2 className="text-2xl font-bold mb-6">Your Stats</h2>
-      <StatsGrid 
-        level={level}
-        xp={xp}
-        completedTasks={completedTasks}
-        totalWords={totalWords}
+  handleDarkModeToggle,
+  quests,
+  skillPoints,
+  skills,
+}) => {
+  const activeQuests = quests.filter((q) => q.status === 'active' || q.status === 'completed');
+
+  return (
+    <div className="space-y-6">
+      <BackupManager 
+        backups={backups}
+        onRestore={restoreFromBackup}
+        onCreateBackup={createBackup}
+        onDeleteBackup={deleteBackup}
       />
-    </div>
-    
-    <div className="glass-card p-6">
-      <h2 className="text-2xl font-bold mb-4">Appearance</h2>
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="font-medium">Dark Mode</div>
-          <div className="text-sm opacity-75">Toggle light/dark theme</div>
+      
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-6">Your Stats</h2>
+        <StatsGrid 
+          level={level}
+          xp={xp}
+          completedTasks={completedTasks}
+          totalWords={totalWords}
+        />
+      </div>
+
+      {/* Quests */}
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">Quests & Challenges</h2>
+        {activeQuests.length === 0 ? (
+          <p className="text-sm opacity-75">
+            Квесты будут появляться по мере развития системы.
+          </p>
+        ) : (
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+            {activeQuests.map((q) => {
+              const progress = q.baseTarget ? Math.min(q.progress || 0, q.baseTarget) : 0;
+              const percent = q.baseTarget ? Math.round((progress / q.baseTarget) * 100) : 0;
+              return (
+                <div
+                  key={q.id}
+                  className="glass-card-2 p-3 rounded-2xl"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="text-sm font-semibold">
+                      {q.title}
+                    </div>
+                    <span className="text-2xs px-2 py-0.5 rounded-full bg-sf-blue/10 text-sf-blue">
+                      {q.type}
+                    </span>
+                  </div>
+                  <p className="text-xs opacity-75 mb-2">{q.description}</p>
+                  {q.baseTarget > 1 && (
+                    <div className="flex items-center justify-between text-2xs mb-1">
+                      <span>Progress</span>
+                      <span>{progress}/{q.baseTarget}</span>
+                    </div>
+                  )}
+                  {q.baseTarget > 1 && (
+                    <div className="h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-sf-blue to-indigo-400 transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  )}
+                  {q.status === 'completed' && (
+                    <div className="mt-1 text-2xs text-emerald-400 font-medium">
+                      Completed
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Skills */}
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">Skills</h2>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm opacity-80">Skill points</span>
+          <span className="text-lg font-semibold text-sf-blue">{skillPoints}</span>
         </div>
-        <button 
-          onClick={handleDarkModeToggle}
-          className={`relative w-14 h-8 rounded-full transition-colors ${darkMode ? 'bg-sf-blue' : 'bg-gray-300'}`}
-          aria-label="Toggle dark mode"
-        >
-          <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${darkMode ? 'right-1' : 'left-1'}`} />
-        </button>
-      </div>
-    </div>
-    
-    <div className="glass-card p-6">
-      <h2 className="text-2xl font-bold mb-4">Data Management</h2>
-      <div className="space-y-3">
-        <div className="text-sm opacity-75 mb-4">
-          <p>• Data is automatically saved in your browser</p>
-          <p>• Automatic backups every hour</p>
-          <p>• Export to file for safe keeping</p>
-          <p>• Import from file to restore</p>
+        <p className="text-xs opacity-70 mb-3">
+          Навыки пока носят больше описательный характер. В будущих версиях они будут
+          глубже влиять на механику.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
+          {['productivity', 'learning', 'discipline', 'creativity'].map((branch) => (
+            <div key={branch} className="glass-card-2 p-3 rounded-2xl">
+              <div className="text-sm font-semibold mb-1 capitalize">
+                {branch}
+              </div>
+              <div className="space-y-1.5">
+                {skills
+                  .filter((s) => s.branch === branch)
+                  .map((s) => (
+                    <div
+                      key={s.id}
+                      className="text-xs opacity-80"
+                    >
+                      • {s.title}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ))}
         </div>
-        
-        <button
-          onClick={clearAllData}
-          className="w-full py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-500 font-medium flex items-center justify-center gap-2 transition-colors"
-        >
-          <Icons.Trash />
-          Clear All Data
-        </button>
+      </div>
+      
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">Appearance</h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-medium">Dark Mode</div>
+            <div className="text-sm opacity-75">Toggle light/dark theme</div>
+          </div>
+          <button 
+            onClick={handleDarkModeToggle}
+            className={`relative w-14 h-8 rounded-full transition-colors ${darkMode ? 'bg-sf-blue' : 'bg-gray-300'}`}
+            aria-label="Toggle dark mode"
+          >
+            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${darkMode ? 'right-1' : 'left-1'}`} />
+          </button>
+        </div>
+      </div>
+      
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">Data Management</h2>
+        <div className="space-y-3">
+          <div className="text-sm opacity-75 mb-4">
+            <p>• Data is automatically saved in your browser</p>
+            <p>• Automatic backups every hour</p>
+            <p>• Export to file for safe keeping</p>
+            <p>• Import from file to restore</p>
+          </div>
+          
+          <button
+            onClick={clearAllData}
+            className="w-full py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-500 font-medium flex items-center justify-center gap-2 transition-colors"
+          >
+            <Icons.Trash />
+            Clear All Data
+          </button>
+        </div>
+      </div>
+      
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">About</h2>
+        <p className="mb-4 opacity-90">
+          This gamified planner helps you stay productive while learning German. 
+          Complete tasks to earn XP and level up!
+        </p>
+        <div className="text-sm opacity-75">
+          <p>• Each completed task gives +15 XP</p>
+          <p>• Level up every {level * 100} XP</p>
+          <p>• Track your German vocabulary</p>
+          <p>• All data is stored locally in your browser</p>
+        </div>
       </div>
     </div>
-    
-    <div className="glass-card p-6">
-      <h2 className="text-2xl font-bold mb-4">About</h2>
-      <p className="mb-4 opacity-90">
-        This gamified planner helps you stay productive while learning German. 
-        Complete tasks to earn XP and level up!
-      </p>
-      <div className="text-sm opacity-75">
-        <p>• Each completed task gives +15 XP</p>
-        <p>• Level up every {level * 100} XP</p>
-        <p>• Track your German vocabulary</p>
-        <p>• All data is stored locally in your browser</p>
-      </div>
-    </div>
-  </div>
-));
+  );
+});
 

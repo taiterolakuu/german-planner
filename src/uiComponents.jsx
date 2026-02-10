@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState, useEffect, useRef } from 'react';
 
 // Мемоизированные SVG иконки
 export const Icons = {
@@ -73,6 +73,26 @@ export const ExperienceBar = memo(({ xp, level, showLevelUp }) => {
   const xpForNextLevel = level * 100;
   const progress = Math.min((xp / xpForNextLevel) * 100, 100);
 
+  const gradientClass =
+    level >= 5
+      ? 'from-amber-400 to-emerald-500'
+      : level >= 3
+      ? 'from-indigo-400 to-violet-500'
+      : 'from-sf-blue to-indigo-400';
+
+  const levelIcon =
+    level >= 5 ? '👑' : level >= 3 ? '🚀' : '🎯';
+
+  const [burstId, setBurstId] = useState(0);
+  const prevXpRef = useRef(xp);
+
+  useEffect(() => {
+    if (xp > prevXpRef.current) {
+      setBurstId((id) => id + 1);
+    }
+    prevXpRef.current = xp;
+  }, [xp]);
+
   return (
     <div className="sticky top-0 z-50 w-full">
       {showLevelUp && (
@@ -89,7 +109,10 @@ export const ExperienceBar = memo(({ xp, level, showLevelUp }) => {
       <div className="glass-header px-6 py-4">
         <div className="flex justify-between items-center mb-2">
           <div>
-            <span className="text-sm font-medium opacity-75">Level {level}</span>
+            <span className="text-sm font-medium opacity-75 flex items-center gap-1">
+              <span>{levelIcon}</span>
+              <span>Level {level}</span>
+            </span>
             <h1 className="text-2xl font-bold">{LEVEL_NAMES[level] || "Advanced"}</h1>
           </div>
           <div className="text-right">
@@ -98,11 +121,16 @@ export const ExperienceBar = memo(({ xp, level, showLevelUp }) => {
           </div>
         </div>
         
-        <div className="h-3 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden shadow-inner-glow">
-          <div 
-            className="h-full bg-gradient-to-r from-sf-blue to-indigo-400 transition-all duration-500 ease-out"
+        <div className="relative h-3 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden shadow-inner-glow">
+          <div
+            className={`h-full bg-gradient-to-r ${gradientClass} transition-all duration-500 ease-out`}
             style={{ width: `${progress}%` }}
           />
+          <div key={burstId} className="xp-particles pointer-events-none">
+            <span className="xp-particle" />
+            <span className="xp-particle" />
+            <span className="xp-particle" />
+          </div>
         </div>
         <div className="text-xs mt-1 opacity-60 text-center">Complete tasks to earn XP</div>
       </div>
@@ -140,52 +168,115 @@ export const ConfirmModal = memo(({ isOpen, title, message, onConfirm, onCancel 
 
 // Bottom Navigation Component
 export const BottomNavigation = memo(({ activeTab, setActiveTab }) => {
-  const tabs = useMemo(() => [
-    { id: 'tasks', label: 'Tasks', Icon: Icons.Tasks },
-    { id: 'dictionary', label: 'Dictionary', Icon: Icons.Dictionary },
-    { id: 'profile', label: 'Stats', Icon: Icons.Profile }
-  ], []);
+  const tabs = useMemo(
+    () => [
+      { id: 'tasks', label: 'Tasks', Icon: Icons.Tasks },
+      { id: 'dictionary', label: 'Words', Icon: Icons.Dictionary },
+      { id: 'profile', label: 'Stats', Icon: Icons.Profile }
+    ],
+    []
+  );
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 glass-nav">
-      <div className="max-w-2xl mx-auto flex justify-around py-3">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center p-3 rounded-2xl transition-all ${activeTab === tab.id ? 'text-sf-blue' : 'text-gray-500'}`}
-            aria-current={activeTab === tab.id ? 'page' : undefined}
-          >
-            <div className={`p-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-sf-blue/20' : ''}`}>
-              <tab.Icon />
-            </div>
-            <span className="text-xs font-medium mt-1">{tab.label}</span>
-          </button>
-        ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-60 glass-nav border-t border-white/20 dark:border-slate-700/60">
+      <div className="max-w-2xl mx-auto px-4 py-2">
+        <div className="flex items-center justify-between gap-2 rounded-3xl bg-gradient-glass dark:bg-gradient-glass-dark shadow-glass-light px-2 py-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all duration-200 ${
+                  isActive
+                    ? 'text-sf-blue bg-white/80 dark:bg-slate-900/70 shadow-glass-light'
+                    : 'text-slate-600 dark:text-slate-300/80 hover:text-sf-blue/90'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <div
+                  className={`flex items-center justify-center w-9 h-9 rounded-2xl transition-transform duration-150 ${
+                    isActive ? 'scale-105' : 'scale-95'
+                  }`}
+                >
+                  <tab.Icon />
+                </div>
+                <span className="text-2xs font-medium tracking-wide">
+                  {tab.label}
+                </span>
+                <span
+                  className={`mt-0.5 h-0.5 w-6 rounded-full bg-sf-blue transition-all duration-200 ${
+                    isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
 });
 
+// Hook for animated numbers
+const useAnimatedNumber = (value, duration = 400) => {
+  const [display, setDisplay] = useState(value);
+
+  useEffect(() => {
+    let frame;
+    const start = performance.now();
+    const from = display;
+    const delta = value - from;
+
+    const animate = (time) => {
+      const progress = Math.min((time - start) / duration, 1);
+      setDisplay(from + delta * progress);
+      if (progress < 1) {
+        frame = requestAnimationFrame(animate);
+      }
+    };
+
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [value]);
+
+  return Math.round(display);
+};
+
 // Stats Grid Component
-export const StatsGrid = memo(({ level, xp, completedTasks, totalWords }) => (
-  <div className="grid grid-cols-2 gap-4">
-    <div className="glass-card-2 p-4 rounded-xl text-center">
-      <div className="text-3xl font-bold text-sf-blue">{level}</div>
-      <div className="text-sm opacity-75">Level</div>
+export const StatsGrid = memo(({ level, xp, completedTasks, totalWords }) => {
+  const animLevel = useAnimatedNumber(level);
+  const animXp = useAnimatedNumber(xp);
+  const animCompleted = useAnimatedNumber(completedTasks);
+  const animWords = useAnimatedNumber(totalWords);
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="glass-card-2 p-4 rounded-xl text-center">
+        <div className="text-3xl font-bold text-sf-blue transition-all duration-200">
+          {animLevel}
+        </div>
+        <div className="text-sm opacity-75">Level</div>
+      </div>
+      <div className="glass-card-2 p-4 rounded-xl text-center">
+        <div className="text-3xl font-bold text-sf-blue transition-all duration-200">
+          {animXp}
+        </div>
+        <div className="text-sm opacity-75">Total XP</div>
+      </div>
+      <div className="glass-card-2 p-4 rounded-xl text-center">
+        <div className="text-3xl font-bold text-sf-blue transition-all duration-200">
+          {animCompleted}
+        </div>
+        <div className="text-sm opacity-75">Tasks Done</div>
+      </div>
+      <div className="glass-card-2 p-4 rounded-xl text-center">
+        <div className="text-3xl font-bold text-sf-blue transition-all duration-200">
+          {animWords}
+        </div>
+        <div className="text-sm opacity-75">Words Learned</div>
+      </div>
     </div>
-    <div className="glass-card-2 p-4 rounded-xl text-center">
-      <div className="text-3xl font-bold text-sf-blue">{xp}</div>
-      <div className="text-sm opacity-75">Total XP</div>
-    </div>
-    <div className="glass-card-2 p-4 rounded-xl text-center">
-      <div className="text-3xl font-bold text-sf-blue">{completedTasks}</div>
-      <div className="text-sm opacity-75">Tasks Done</div>
-    </div>
-    <div className="glass-card-2 p-4 rounded-xl text-center">
-      <div className="text-3xl font-bold text-sf-blue">{totalWords}</div>
-      <div className="text-sm opacity-75">Words Learned</div>
-    </div>
-  </div>
-));
+  );
+});
 
